@@ -208,21 +208,21 @@
     }
 
     // NO moves but NEVER vanishes
-    function moveNoButton() {
-      const btnWidth = noBtn.offsetWidth;
-      const btnHeight = noBtn.offsetHeight;
+ function moveNoButton() {
+  const wrapRect = buttonsWrap.getBoundingClientRect();
+  const btnRect = noBtn.getBoundingClientRect();
 
-      const maxX = window.innerWidth - btnWidth - 10;
-      const maxY = window.innerHeight - btnHeight - 10;
+  const maxX = wrapRect.width - btnRect.width;
+  const maxY = wrapRect.height - btnRect.height;
 
-      const randomX = Math.floor(Math.random() * maxX);
-      const randomY = Math.floor(Math.random() * maxY);
+  const randomX = Math.floor(Math.random() * maxX);
+  const randomY = Math.floor(Math.random() * maxY);
 
-      noBtn.style.left = randomX + "px";
-      noBtn.style.top = randomY + "px";
+  noBtn.style.left = randomX + "px";
+  noBtn.style.top = randomY + "px";
 
-      growYes();
-    }
+  growYes();
+}
 
     noBtn.addEventListener("mouseover", moveNoButton);
     noBtn.addEventListener("touchstart", (e) => {
@@ -264,3 +264,4 @@
 
 </body>
 </html>
+
