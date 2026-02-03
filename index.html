@@ -95,13 +95,13 @@
     }
 
     #noBtn {
-  background: #ff3b30;
-  color: white;
-  font-weight: 800;
-  position: absolute;
-  left: 220px;
-  top: 50px;
-}
+      background: #ff3b30;
+      color: white;
+      font-weight: 800;
+      position: absolute;
+      left: 220px;
+      top: 50px;
+    }
 
     .afterYes {
       display: none;
@@ -123,24 +123,16 @@
       color: #ff2d55;
       margin-top: 10px;
     }
-
-    /* Only shows if browser blocks autoplay */
-    #playMusicBtn {
-      display: none;
-      margin-top: 14px;
-      background: #ff2d55;
-      color: white;
-      font-weight: 900;
-      padding: 12px 18px;
-      border-radius: 14px;
-      font-size: 16px;
-    }
   </style>
 </head>
 
 <body>
 
+  <!-- Floating hearts -->
   <div class="hearts" id="hearts"></div>
+
+  <!-- Confetti container -->
+  <div id="confettiContainer" style="position:absolute; inset:0; pointer-events:none; z-index:3;"></div>
 
   <div class="card">
     <h1>Will you be my Valentine? 💖</h1>
@@ -152,138 +144,90 @@
     </div>
 
     <div class="afterYes" id="afterYes">
-      <img
-        class="catPic"
-        src="cat.jpg"
-        alt="Cute Cat Couple"
-      />
+      <img class="catPic" src="cat.jpg" alt="Cute Cat Couple" />
       <div class="yayText">I think they call this love 😭❤️</div>
-
-      <!-- fallback button if browser blocks music -->
-      <button id="playMusicBtn">Tap to play music 🎶💖</button>
     </div>
   </div>
-
-  <!-- IMPORTANT: love.mp3 must be in SAME folder as index.html -->
-  <audio id="bgMusic" preload="auto">
-    <source src="love.mp3" type="audio/mpeg">
-  </audio>
 
   <script>
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
     const afterYes = document.getElementById("afterYes");
     const buttonsWrap = document.getElementById("buttonsWrap");
-    const bgMusic = document.getElementById("bgMusic");
-    const playMusicBtn = document.getElementById("playMusicBtn");
 
     // Floating hearts
     const heartsContainer = document.getElementById("hearts");
     const heartEmojis = ["💗","💖","💘","💝","💕","❤️"];
-
     function createHeart() {
       const heart = document.createElement("div");
       heart.classList.add("heart");
-      heart.innerText = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
-      heart.style.left = Math.random() * 100 + "vw";
-      heart.style.animationDuration = (4 + Math.random() * 5) + "s";
-      heart.style.fontSize = (16 + Math.random() * 22) + "px";
-      heart.style.opacity = (0.5 + Math.random() * 0.5);
+      heart.innerText = heartEmojis[Math.floor(Math.random()*heartEmojis.length)];
+      heart.style.left = Math.random()*100+"vw";
+      heart.style.animationDuration = (4 + Math.random()*5)+"s";
+      heart.style.fontSize = (16 + Math.random()*22)+"px";
+      heart.style.opacity = (0.5 + Math.random()*0.5);
       heartsContainer.appendChild(heart);
-      setTimeout(() => heart.remove(), 9000);
+      setTimeout(()=>heart.remove(),9000);
     }
-    setInterval(createHeart, 250);
+    setInterval(createHeart,250);
 
     // YES grows
-    let yesFont = 18;
-    let yesPadY = 14;
-    let yesPadX = 26;
-
-    function growYes() {
-      yesFont += 3;
-      yesPadY += 1;
-      yesPadX += 2;
-
-      yesBtn.style.fontSize = yesFont + "px";
-      yesBtn.style.padding = yesPadY + "px " + yesPadX + "px";
+    let yesFont=18, yesPadY=14, yesPadX=26;
+    function growYes(){
+      yesFont+=3; yesPadY+=1; yesPadX+=2;
+      yesBtn.style.fontSize = yesFont+"px";
+      yesBtn.style.padding = yesPadY+"px "+yesPadX+"px";
     }
 
-    // NO moves but NEVER vanishes
- function moveNoButton() {
-  const wrapRect = buttonsWrap.getBoundingClientRect();
-  const btnRect = noBtn.getBoundingClientRect();
-
-  const maxX = wrapRect.width - btnRect.width;
-  const maxY = wrapRect.height - btnRect.height;
-
-  const randomX = Math.floor(Math.random() * maxX);
-  const randomY = Math.floor(Math.random() * maxY);
-
-  noBtn.style.left = randomX + "px";
-  noBtn.style.top = randomY + "px";
-
-  growYes();
-}
-
+    // NO moves
+    function moveNoButton(){
+      const wrapRect=buttonsWrap.getBoundingClientRect();
+      const btnRect=noBtn.getBoundingClientRect();
+      const maxX = wrapRect.width - btnRect.width;
+      const maxY = wrapRect.height - btnRect.height;
+      noBtn.style.left = Math.floor(Math.random()*maxX)+"px";
+      noBtn.style.top = Math.floor(Math.random()*maxY)+"px";
+      growYes();
+    }
     noBtn.addEventListener("mouseover", moveNoButton);
-    noBtn.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      moveNoButton();
-    });
-    noBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      moveNoButton();
-    });
+    noBtn.addEventListener("touchstart", (e)=>{e.preventDefault(); moveNoButton();});
+    noBtn.addEventListener("click",(e)=>{e.preventDefault(); moveNoButton();});
 
-    // PERFECT play function
-    async function playLoveSong() {
-      try {
-        bgMusic.pause();
-        bgMusic.currentTime = 0;      // start from beginning
-        bgMusic.volume = 1.0;         // full volume
-        bgMusic.muted = false;        // ensure unmuted
-        await bgMusic.play();         // try play
-        playMusicBtn.style.display = "none";
-      } catch (err) {
-        // If blocked (mostly on iPhone sometimes), show manual button
-        playMusicBtn.style.display = "inline-block";
-      }
+    // CONFETTI EFFECT
+    function createConfetti(){
+      const confettiContainer = document.getElementById("confettiContainer");
+      const colors=["#ff2d55","#ffcc00","#2ecc71","#00aaff","#ff66cc","#ff9900"];
+      const confetti=document.createElement("div");
+      confetti.style.position="absolute";
+      confetti.style.width=confetti.style.height=(Math.floor(Math.random()*10+6))+"px";
+      confetti.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)];
+      confetti.style.left=Math.random()*window.innerWidth+"px";
+      confetti.style.top="-20px";
+      confetti.style.opacity=0.9;
+      confetti.style.transform=`rotate(${Math.random()*360}deg)`;
+      confetti.style.borderRadius="3px";
+      confetti.style.pointerEvents="none";
+      confetti.style.zIndex=3;
+      confettiContainer.appendChild(confetti);
+      const fallDuration=3000+Math.random()*2000;
+      confetti.animate([
+        { transform:`translateY(0px) rotate(0deg)` },
+        { transform:`translateY(${window.innerHeight+50}px) rotate(${Math.random()*720}deg)` }
+      ], {duration:fallDuration,easing:"linear",iterations:1});
+      setTimeout(()=>confetti.remove(),fallDuration);
+    }
+    function partyPopper(){
+      const interval=setInterval(createConfetti,50);
+      setTimeout(()=>clearInterval(interval),2000);
     }
 
-    // YES click: show message + play song
-    yesBtn.addEventListener("click", () => {
-  buttonsWrap.style.display = "none";
-  afterYes.style.display = "block";
-
-  // FORCE audio to start after YES click
-  bgMusic.pause();
-  bgMusic.currentTime = 0;
-  bgMusic.muted = false;
-  bgMusic.volume = 1;
-
-  const playPromise = bgMusic.play();
-
-  if (playPromise !== undefined) {
-    playPromise.catch(() => {
-      // If browser blocks it, user just taps once more
-      alert("Tap anywhere once to start the music 💖");
-    });
-  }
-});
-    document.addEventListener("touchstart", () => {
-  if (afterYes.style.display === "block" && bgMusic.paused) {
-    bgMusic.play().catch(() => {});
-  }
-}, { once: true });
-
-    // If blocked, user taps this
-    playMusicBtn.addEventListener("click", async () => {
-      await playLoveSong();
+    // YES click
+    yesBtn.addEventListener("click", ()=>{
+      buttonsWrap.style.display="none";
+      afterYes.style.display="block";
+      partyPopper();
     });
   </script>
 
 </body>
 </html>
-
-
-
