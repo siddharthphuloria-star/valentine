@@ -95,12 +95,13 @@
     }
 
     #noBtn {
-      background: #ff3b30;
-      color: white;
-      font-weight: 800;
-      position: absolute;
-      right: 30px;
-    }
+  background: #ff3b30;
+  color: white;
+  font-weight: 800;
+  position: absolute;
+  left: 220px;
+  top: 50px;
+}
 
     .afterYes {
       display: none;
@@ -250,11 +251,30 @@
     }
 
     // YES click: show message + play song
-    yesBtn.addEventListener("click", async () => {
-      buttonsWrap.style.display = "none";
-      afterYes.style.display = "block";
-      await playLoveSong();
+    yesBtn.addEventListener("click", () => {
+  buttonsWrap.style.display = "none";
+  afterYes.style.display = "block";
+
+  // FORCE audio to start after YES click
+  bgMusic.pause();
+  bgMusic.currentTime = 0;
+  bgMusic.muted = false;
+  bgMusic.volume = 1;
+
+  const playPromise = bgMusic.play();
+
+  if (playPromise !== undefined) {
+    playPromise.catch(() => {
+      // If browser blocks it, user just taps once more
+      alert("Tap anywhere once to start the music 💖");
     });
+  }
+});
+    document.addEventListener("touchstart", () => {
+  if (afterYes.style.display === "block" && bgMusic.paused) {
+    bgMusic.play().catch(() => {});
+  }
+}, { once: true });
 
     // If blocked, user taps this
     playMusicBtn.addEventListener("click", async () => {
@@ -264,4 +284,5 @@
 
 </body>
 </html>
+
 
