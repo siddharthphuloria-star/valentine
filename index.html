@@ -122,6 +122,18 @@
       color: #ff2d55;
       margin-top: 10px;
     }
+
+    /* Only shows if browser blocks autoplay */
+    #playMusicBtn {
+      display: none;
+      margin-top: 14px;
+      background: #ff2d55;
+      color: white;
+      font-weight: 900;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-size: 16px;
+    }
   </style>
 </head>
 
@@ -141,14 +153,17 @@
     <div class="afterYes" id="afterYes">
       <img
         class="catPic"
-        src="https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=800&q=80"
+        src="https://share.google/xKzBO8jaSAAlIJoXx"
         alt="Cute Cat Couple"
       />
       <div class="yayText">I think they call this love 😭❤️</div>
+
+      <!-- fallback button if browser blocks music -->
+      <button id="playMusicBtn">Tap to play music 🎶💖</button>
     </div>
   </div>
 
-  <!-- Put your song file in same folder as index.html and name it love.mp3 -->
+  <!-- IMPORTANT: love.mp3 must be in SAME folder as index.html -->
   <audio id="bgMusic" preload="auto">
     <source src="love.mp3" type="audio/mpeg">
   </audio>
@@ -159,6 +174,7 @@
     const afterYes = document.getElementById("afterYes");
     const buttonsWrap = document.getElementById("buttonsWrap");
     const bgMusic = document.getElementById("bgMusic");
+    const playMusicBtn = document.getElementById("playMusicBtn");
 
     // Floating hearts
     const heartsContainer = document.getElementById("hearts");
@@ -208,39 +224,41 @@
       growYes();
     }
 
-    // Move on hover (laptop)
     noBtn.addEventListener("mouseover", moveNoButton);
-
-    // Move on touch (mobile)
     noBtn.addEventListener("touchstart", (e) => {
       e.preventDefault();
       moveNoButton();
     });
-
-    // Even if clicked, it runs away
     noBtn.addEventListener("click", (e) => {
       e.preventDefault();
       moveNoButton();
     });
 
-    // YES click: show message + play song automatically
+    // PERFECT play function
+    async function playLoveSong() {
+      try {
+        bgMusic.pause();
+        bgMusic.currentTime = 0;      // start from beginning
+        bgMusic.volume = 1.0;         // full volume
+        bgMusic.muted = false;        // ensure unmuted
+        await bgMusic.play();         // try play
+        playMusicBtn.style.display = "none";
+      } catch (err) {
+        // If blocked (mostly on iPhone sometimes), show manual button
+        playMusicBtn.style.display = "inline-block";
+      }
+    }
+
+    // YES click: show message + play song
     yesBtn.addEventListener("click", async () => {
       buttonsWrap.style.display = "none";
       afterYes.style.display = "block";
-
-      try {
-        await bgMusic.play(); // will work because YES is a user gesture
-      } catch (err) {
-        // If browser blocks it, user can tap again
-        alert("Tap anywhere once to start the music 💖");
-      }
+      await playLoveSong();
     });
 
-    // Backup: if music blocked, first tap anywhere starts it
-    document.addEventListener("click", () => {
-      if (afterYes.style.display === "block" && bgMusic.paused) {
-        bgMusic.play().catch(() => {});
-      }
+    // If blocked, user taps this
+    playMusicBtn.addEventListener("click", async () => {
+      await playLoveSong();
     });
   </script>
 
